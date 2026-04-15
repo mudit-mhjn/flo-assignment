@@ -10,8 +10,22 @@ readme = "README.md"
 requires-python = ">=3.9"
 dependencies = []
 
+[project.optional-dependencies]
+dev = [
+    "setuptools>=68",
+    "pytest>=7.0",
+]
+
 [project.scripts]
 nem12-parser = "nem12_parser.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.pyright]
+reportMissingModuleSource = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-q"

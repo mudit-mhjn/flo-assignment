@@ -15,7 +15,7 @@ class MeterReadings:
 
 @dataclass(frozen=True)
 class ParserConfig:
-    on_error: Literal["fail", "skip"] = "skip"
+    on_error: Literal["fail", "skip"] = "fail"
     reject_unknown_records: bool = True
 
 

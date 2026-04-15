@@ -1,2 +1,0 @@
-[console_scripts]
-nem12-parser = nem12_parser.cli:main

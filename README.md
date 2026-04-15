@@ -71,10 +71,10 @@ Key fields used:
 
 ## Approach and Implementation Notes
 
-- Stream line-by-line with Python `csv.reader` (constant-memory parsing).
+- Stream line by line with python `csv.reader` (constant-memory parsing).
 - Keep mutable parser context from latest valid `200` record (`nmi`, `interval`).
 - Convert each `300` interval value to timestamps, first timestamp is `00:00` 30 min interval.
-- Emit SQL in configurable batches (`--batch-size`) to reduce statement overhead.
+- Emit sql in configurable batches (`--batch-size`, default 1000) to reduce statement overhead.
 - Use `ON CONFLICT ("nmi","timestamp") DO UPDATE` by default for uniqueness.
 
 ### Implementation Notes
@@ -82,14 +82,14 @@ Key fields used:
 #### Streaming and Scale
 - No full file load.
 - No full output materialization.
-- Parser and SQL generator are both iterators.
+- Parser and sql generator are both iterators.
 
 #### Validation
 - Rejects malformed `200` records (missing fields, bad interval, invalid NMI length).
 - Rejects malformed `300` records (bad date, invalid/missing consumption values).
 - Supports either:
-  - fail-fast (`--on-error fail`, default), or
-  - tolerant mode (`--on-error skip`) with warnings.
+  - fail-fast (`--on-error fail`), or
+  - tolerant mode (`--on-error skip`, default) with warnings.
 
 #### Edge Cases Covered
 - `300` appears before any valid `200`.
@@ -97,7 +97,7 @@ Key fields used:
 - malformed `200` records never reuse stale context from previous NMIs.
 - Unknown record types.
 - Empty lines.
-- Non-numeric consumption tokens.
+- Invalid consumption tokens.
 - Very large files.
 - Duplicate `(nmi, timestamp)` rows:
   - handled with upsert by default.
@@ -106,7 +106,7 @@ Key fields used:
 ### Install
 
 ```bash
-python3 -m pip install -e .
+pip install .
 ```
 
 ### Generate SQL to stdout
@@ -127,9 +127,38 @@ nem12-parser examples/sample_nem12.csv -o output.sql
 # skip malformed records and continue
 nem12-parser input.csv --on-error skip
 
-# emit plain INSERT without ON CONFLICT
+# plain inserts without ON CONFLICT
 nem12-parser input.csv --no-upsert
 ```
 
 
 ## Open Ended Questions
+
+### What is the rationale for the technologies you have decided to use?
+My choice of technology for this project is Python3 stack for the following reasons:
+- Fast implementation cycles for data parsing tasks.
+- `csv.reader` is robust, built-in and streaming friendly.
+- No external runtime dependencies keeps operational risk and setup cost low.
+- Python `Iterator` for large file handling.
+- Decimal for precise handling of consumption value handling.
+- Easy to debug, review and evaluate.
+
+### What would you have done differently if you had more time?
+If I was offered more time I'd have changed or added the following:
+- Added parallelism for processing multiple files at same time.
+- Tighter modelling of interval data rows (`300` record) instead of assuming first N numbers.
+- Add a DLQ for handling failed cases.
+- Add a performance benchmark for multi GB files.
+- Structured observability (json logs + error codes + metrics counters).
+- Add `COPY` output mode for postgres for batching of large insert insert statements
+- Increase more coverage on NEM12 file and stonger validations against the specs.
+- Create a complete etl pipeline.
+
+### What is the rationale for the design choices that you have made?
+The design choices I have made for this task along with their reasoning -
+**Streaming First**: Using `csv.reader` to parse the stream and `yield` so memory roughly stays the same which is O(batch) instead of O(file).
+**Interval Lengths**: Consumption columns are fixed slices `row[2 : 2+expected]`. This means interval counts should be strict.
+**Defaults Upserts**: Defaults upserts to avoid unique key failure for retries and keeping ingestion idempotent for `(nmi, timestamp)`.
+**SQL Generation**: The program emits batched INSERT statements with configurable --batch-size to balance count with size and save round trip network calls.
+**Error Handling**: Chooses between fail-fast and warn-and-continue. Defaults to fail-fast to trigate errors and validation failues.
+**Minimal Architechture**: Small, dependency free, easy to replace modules. Easy to test and extend later.
