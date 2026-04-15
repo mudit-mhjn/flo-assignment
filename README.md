@@ -156,9 +156,9 @@ If I was offered more time I'd have changed or added the following:
 
 ### What is the rationale for the design choices that you have made?
 The design choices I have made for this task along with their reasoning -
-**Streaming First**: Using `csv.reader` to parse the stream and `yield` so memory roughly stays the same which is O(batch) instead of O(file).
-**Interval Lengths**: Consumption columns are fixed slices `row[2 : 2+expected]`. This means interval counts should be strict.
-**Defaults Upserts**: Defaults upserts to avoid unique key failure for retries and keeping ingestion idempotent for `(nmi, timestamp)`.
-**SQL Generation**: The program emits batched INSERT statements with configurable --batch-size to balance count with size and save round trip network calls.
-**Error Handling**: Chooses between fail-fast and warn-and-continue. Defaults to fail-fast to trigate errors and validation failues.
-**Minimal Architechture**: Small, dependency free, easy to replace modules. Easy to test and extend later.
+- **Streaming First**: Using `csv.reader` to parse the stream and `yield` so memory roughly stays the same which is O(batch) instead of O(file).
+- **Interval Lengths**: Consumption columns are fixed slices `row[2 : 2+expected]`. This means interval counts should be strict.
+- **Defaults Upserts**: Defaults upserts to avoid unique key failure for retries and keeping ingestion idempotent for `(nmi, timestamp)`.
+- **SQL Generation**: The program emits batched INSERT statements with configurable --batch-size to balance count with size and save round trip network calls.
+- **Error Handling**: Chooses between fail-fast and warn-and-continue. Defaults to fail-fast to trigate errors and validation failues.
+- **Minimal Architechture**: Small, dependency free, easy to replace modules. Easy to test and extend later.
