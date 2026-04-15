@@ -1,0 +1,11 @@
+README.md
+pyproject.toml
+src/nem12_parser/__init__.py
+src/nem12_parser/cli.py
+src/nem12_parser/nem12.py
+src/nem12_parser/sql.py
+src/nem12_parser.egg-info/PKG-INFO
+src/nem12_parser.egg-info/SOURCES.txt
+src/nem12_parser.egg-info/dependency_links.txt
+src/nem12_parser.egg-info/entry_points.txt
+src/nem12_parser.egg-info/top_level.txt

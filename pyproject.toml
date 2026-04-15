@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nem12-parser"
+version = "0.1.0"
+description = "streaming NEM12 parser that generates sql insert statements for meter_readings table."
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = []
+
+[project.scripts]
+nem12-parser = "nem12_parser.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
