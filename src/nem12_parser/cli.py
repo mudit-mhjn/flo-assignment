@@ -36,7 +36,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     )
     return parser
 
-def main(argv: Sequence[str] = None) -> int:
+def main(argv: Optional[Sequence[str]] = None) -> Optional[int]:
     args = build_arg_parser().parse_args(argv)
     config = ParserConfig(
         on_error = args.on_error,

@@ -3,7 +3,7 @@ from typing import Iterator
 from decimal import Decimal
 
 def generate_insert_sql(
-    readings: list[MeterReadings], 
+    readings: Iterator[MeterReadings], 
     batch_size: int = 1000, 
     upsert: bool = False
     ) -> Iterator[str]:
