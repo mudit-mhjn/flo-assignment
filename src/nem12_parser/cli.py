@@ -1,7 +1,7 @@
 import argparse
 import sys
 from pathlib import Path
-from typing import Sequence
+from typing import Sequence, Optional
 from .nem12 import NEM12Parser, ParseError, ParserConfig
 from .sql import generate_insert_sql
 
